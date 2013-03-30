@@ -1,10 +1,11 @@
-APP := net_monitor
+APP1 := net_monitor
+APP2 := my_net_app
 ROOT:=$(HOME)
 NDK_PLATFORM_VER := 14
 INSTALL_DIR := /data/tmp
 
-ANDROID_SDK_ROOT:=/home/darklord/.android-sdk-linux
-ANDROID_NDK_ROOT:=/home/darklord/.android-ndk-r8d
+ANDROID_SDK_ROOT:=$(HOME)/bin/android-sdk-linux
+ANDROID_NDK_ROOT:=$(HOME)/bin/android-ndk-r8d
 ANDROID_NDK_HOST:=linux-x86
 ANDROID_TARGET:=i686-linux-android
 ANDROID_TARGET_ARCH:=x86
@@ -22,18 +23,22 @@ LDFLAGS := -Wl,-rpath-link=$(LIBDIR),-dynamic-linker=/system/bin/linker -L$(LIBD
 LDFLAGS += $(LIBDIR)/crtbegin_dynamic.o $(LIBDIR)/crtend_android.o -nostdlib -lc -disable-multilib -lm
  
  
-all: $(APP)
+all: $(APP1) $(APP2)
  
 OBJS += $(APP).o
  
-$(APP): $(OBJS)
+$(APP1): $(APP1).o
+	$(CC) $(LDFLAGS) -o $@ $^
+$(APP2): $(APP2).o
 	$(CC) $(LDFLAGS) -o $@ $^
  
 %.o: %.c
 	$(CC) -c $(INCLUDE) $(CFLAGS) $< -o $@ 
-install: $(APP)
-	$(ANDROID_SDK_ROOT)/platform-tools/adb push $(APP) $(INSTALL_DIR)/$(APP) 
-	$(ANDROID_SDK_ROOT)/platform-tools/adb shell chmod 777 $(INSTALL_DIR)/$(APP)
+install: $(APP1) $(APP2)
+	$(ANDROID_SDK_ROOT)/platform-tools/adb push $(APP1) $(INSTALL_DIR)/$(APP1) 
+	$(ANDROID_SDK_ROOT)/platform-tools/adb push $(APP2) $(INSTALL_DIR)/$(APP2) 
+	$(ANDROID_SDK_ROOT)/platform-tools/adb shell chmod 777 $(INSTALL_DIR)/$(APP1)
+	$(ANDROID_SDK_ROOT)/platform-tools/adb shell chmod 777 $(INSTALL_DIR)/$(APP2)
  
 shell:
 	$(ANDROID_SDK_ROOT)/platform-tools/adb shell
