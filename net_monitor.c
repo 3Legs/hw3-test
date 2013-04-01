@@ -29,16 +29,32 @@ void get_sys_time(int *sec, int *milli)
 
 int main(int argc, char **argv)
 {
-	int sec, usec;
-	int result;
+	int sec = 0;
+	int usec = 0;
+	int result = 0;
 	pid_t pid = getpid();
 	while(1) {
 		get_sys_time(&sec, &usec);
 		printf("Sleeper called net_lock at sec: %d usec: %d, sleeper pid: %d\n", sec, usec, pid);
 		result = syscall(__NR_net_lock, NET_LOCK_SLEEP, 1);
+		if(result < 0) {
+			printf("Error occured calling net_lock!\n");
+			break;
+		}
+		get_sys_time(&sec, &usec);
 		printf("Sleeper called net_lock_wait_timeout at sec: %d usec: %d, sleeper pid: %d\n", sec, usec, pid);
 		result = syscall(__NR_net_lock_wait_timeout);
+		if(result < 0) {
+			printf("Error occured calling net_lock_wait_timeout!\n");
+			break;
+		}
+		get_sys_time(&sec, &usec);
 		printf("Sleeper called net_unlock at sec: %d usec: %d, sleeper pid: %d\n", sec, usec, pid);
 		result = syscall(__NR_net_unlock);
+		if(result < 0) {
+			printf("Error occured calling net_unlock!\n");
+			break;
+		}
 	}
+	return 0;
 }
